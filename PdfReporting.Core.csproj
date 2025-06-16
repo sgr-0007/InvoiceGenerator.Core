@@ -1,37 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- Disable the SDK’s implicit content so we only ship what we list below -->
+
+    <!-- Only include what we explicitly list below -->
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!-- Package metadata -->
     <Authors>SagarHS</Authors>
     <PackageId>PdfReporting.Core</PackageId>
-    <Version>1.0.0</Version>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.1.0</Version>
     <Description>Generate PDFs from Razor views in ASP.NET Core.</Description>
     <PackageTags>pdf;razor;reporting</PackageTags>
+
+    <!-- SPDX license expression -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <!-- README displayed on nuget.org -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
     <RuntimeIdentifiers>osx-x64;osx-arm64;linux-x64;win-x64</RuntimeIdentifiers>
-     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <!-- Explicitly ship appsettings + Views as contentFiles -->
   <ItemGroup>
-    <!-- appsettings.json -->
+    <!-- README at the root of the nupkg -->
+    <None Include="README.md">
+      <Pack>true</Pack>
+      <PackagePath>README.md</PackagePath>
+    </None>
+
+    <!-- appsettings.json as contentFile -->
     <None Include="appsettings.json">
       <Pack>true</Pack>
       <PackageCopyToOutput>true</PackageCopyToOutput>
-      <PackagePath>contentFiles\any\net8.0\</PackagePath>
+      <PackagePath>contentFiles\any\net8.0\appsettings.json</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 
-    <!-- Razor views under Views/** -->
+    <!-- Razor views under Views/ -->
     <Content Include="Views\**\*.cshtml">
       <Pack>true</Pack>
       <PackageCopyToOutput>true</PackageCopyToOutput>
