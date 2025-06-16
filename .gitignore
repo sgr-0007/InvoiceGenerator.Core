@@ -1,0 +1,16 @@
+# Build outputs
+bin/
+obj/
+
+# Rider & VS user files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+packages/
+*.nupkg
+
+appsettings.json
+

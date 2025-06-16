@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <!-- Disable the SDK’s implicit content so we only ship what we list below -->
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>SagarHS</Authors>
+    <PackageId>PdfReporting.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Generate PDFs from Razor views in ASP.NET Core.</Description>
+    <PackageTags>pdf;razor;reporting</PackageTags>
+    <RuntimeIdentifiers>osx-x64;osx-arm64;linux-x64;win-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!-- Explicitly ship appsettings + Views as contentFiles -->
+  <ItemGroup>
+    <!-- appsettings.json -->
+    <None Include="appsettings.json">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <PackagePath>contentFiles\any\net8.0\</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <!-- Razor views under Views/** -->
+    <Content Include="Views\**\*.cshtml">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <PackagePath>contentFiles\any\net8.0\Views\</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Razor.Templating.Core" Version="2.1.0" />
+    <PackageReference Include="IronPdf"              Version="2024.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.*" />
+  </ItemGroup>
+</Project>
