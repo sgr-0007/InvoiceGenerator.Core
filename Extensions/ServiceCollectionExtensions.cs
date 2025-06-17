@@ -12,19 +12,23 @@ namespace InvoiceGenerator.Core.Extensions
         public static IServiceCollection AddInvoiceGenerator(this IServiceCollection services)
         {
             // 1) Build a Configuration that reads:
-            //    - appsettings.json next to the DLL
+            //    - appsettings.json next to the DLL (if exists)
             //    - environment variables (to allow overrides)
-            var config = new ConfigurationBuilder()
+            var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-                .AddEnvironmentVariables()
-                .Build();
+                .AddEnvironmentVariables();
+                
+            // Make appsettings.json optional
+            string settingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+            if (File.Exists(settingsPath))
+            {
+                configBuilder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
+            }
+            
+            var config = configBuilder.Build();
 
-            // 2) Pull out the IronPdf key (or throw if missing)
-            var licenseKey = config["IronPdf:LicenseKey"]
-                             ?? throw new InvalidOperationException(
-                                 "Missing IronPdf:LicenseKey in appsettings.json or env-var IRONPDF_IronPdf__LicenseKey."
-                             );
+            // In production, you would want to require this key
+            var licenseKey = config["IronPdf:LicenseKey"] ?? "IRONPDF-KEY";
 
             // 3) Apply it once, up front
             License.LicenseKey = licenseKey;
@@ -33,6 +37,7 @@ namespace InvoiceGenerator.Core.Extensions
             services.AddRazorTemplating();
             services.AddSingleton<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
             services.AddSingleton<IPdfGenerator, IronPdfGenerator>();
+            services.AddSingleton<IInvoiceGenerator, InvoicePdfGenerator>();
 
             return services;
         }

@@ -1,6 +1,6 @@
 # Invoice Generator Library
 
-A .NET 8 library for generating PDF reports from Razor templates using IronPdf. This library is designed to be easy to use, providing a simple API for generating complex PDF documents with text, images, tables, and more.
+A .NET 8 library for generating Invoice PDF reports from Razor templates using IronPdf. This library is designed to be easy to use, providing a simple API for generating complex PDF documents with text, tables, and more.
 
 ## Features
 
@@ -8,6 +8,7 @@ A .NET 8 library for generating PDF reports from Razor templates using IronPdf. 
 - Uses IronPdf for HTML-to-PDF conversion
 - Dependency injection support for easy integration with ASP.NET Core applications
 - Model-based report generation (strongly typed views)
+- Support for custom fields in invoices via a flexible dictionary, allowing for easy addition of custom data to invoices
 - Cross-platform support (Windows, macOS, Linux)
 
 ## Getting Started
@@ -36,7 +37,79 @@ Install-Package InvoiceGenerator.Core
 
 The primary way to use this library is by leveraging dependency injection.
 
-### 1. Service Registration
+### Complete Example
+
+Here's a complete example of how to use the library to generate an invoice PDF:
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using InvoiceGenerator.Core.Contracts;
+using InvoiceGenerator.Core.Extensions;
+using InvoiceGenerator.Core.Services;
+using System.IO;
+using System;
+
+// 1️⃣ Setup DI for your PDF services
+var services = new ServiceCollection()
+                .AddInvoiceGenerator() // registers all required services
+                .BuildServiceProvider();
+
+// Get the invoice generator service
+var invoiceGenerator = services.GetRequiredService<IInvoiceGenerator>();
+
+// 2️⃣ Create your invoice model
+var invoice = new Invoice
+{
+    Number = "INV-001",
+    IssuedDate = DateTime.Today,
+    DueDate = DateTime.Today.AddDays(30),
+    SellerAddress = new Address
+    {
+        CompanyName = "ACME Corp",
+        Street = "123 Main St",
+        City = "Metropolis",
+        State = "NY",
+        Email = "sales@acme.com",
+    },
+    CustomerAddress = new Address
+    {
+        CompanyName = "Wayne Enterprises",
+        Street = "456 Oak Ave",
+        City = "Gotham",
+        State = "NJ",
+        Email = "wayne@example.com",
+    },
+    LineItems =
+    [
+        new() { Name = "Product A", Price = 10.00m, Quantity = 2 },
+        new() { Name = "Product B", Price = 25.50m, Quantity = 1 }
+    ]
+};
+
+// 3️⃣ Add custom fields to the invoice dynamically
+invoice.CustomFields["Purchase Order"] = "PO-12345";
+invoice.CustomFields["Salesperson"] = "John Doe";
+
+// 4️⃣ Generate the PDF from the invoice
+try {
+    byte[] pdfBytes = await invoiceGenerator.GenerateAsync(invoice);
+    
+    // 5️⃣ Write the PDF out
+    var outputPath = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "TestInvoice.pdf"
+    );
+    await File.WriteAllBytesAsync(outputPath, pdfBytes);
+    
+    Console.WriteLine($"✅ PDF written to {outputPath}");
+} catch (Exception ex) {
+    Console.WriteLine($"❌ Error generating PDF: {ex.Message}");
+}
+```
+
+### Step-by-Step Usage
+
+#### 1. Service Registration
 
 Register the required services in your `Program.cs` or startup class:
 
@@ -49,9 +122,66 @@ var services = new ServiceCollection()
     .BuildServiceProvider();
 ```
 
-### 2. PDF Generation
+#### 2. PDF Generation
 
-Inject `IRazorViewToStringRenderer` and `IPdfGenerator` to render a Razor view to HTML and then convert it to a PDF.
+##### Using the InvoicePdfGenerator (Recommended)
+
+The library provides a high-level `IInvoiceGenerator` interface and `InvoicePdfGenerator` implementation that simplifies the PDF generation process:
+
+```csharp
+using InvoiceGenerator.Core.Services;
+using InvoiceGenerator.Core.Contracts;
+
+// Resolve the IInvoiceGenerator service from the DI container
+var invoiceGenerator = services.GetRequiredService<IInvoiceGenerator>();
+
+// 1. Create your invoice model
+var invoice = new Invoice
+{
+    Number = "INV-001",
+    IssuedDate = DateTime.Today,
+    DueDate = DateTime.Today.AddDays(30),
+    SellerAddress = new Address
+    {
+        CompanyName = "ACME Corp",
+        Street = "123 Main St",
+        City = "Metropolis",
+        State = "NY",
+        Email = "sales@acme.com",
+    },
+    CustomerAddress = new Address
+    {
+        CompanyName = "Wayne Enterprises",
+        Street = "456 Oak Ave",
+        City = "Gotham",
+        State = "NJ",
+        Email = "wayne@example.com",
+    },
+    LineItems =
+    [
+        new() { Name = "Product A", Price = 10.00m, Quantity = 2 },
+        new() { Name = "Product B", Price = 25.50m, Quantity = 1 }
+    ]
+};
+
+// 2. Add custom fields to the invoice (optional)
+invoice.CustomFields["Purchase Order"] = "PO-12345";
+invoice.CustomFields["Salesperson"] = "John Doe";
+invoice.CustomFields["Terms"] = "Net 30";
+
+// 3. Generate the PDF directly from the invoice model
+byte[] pdfBytes = await invoiceGenerator.GenerateAsync(invoice);
+
+// 4. Save the PDF file
+var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "MyInvoice.pdf");
+await File.WriteAllBytesAsync(outputPath, pdfBytes);
+
+Console.WriteLine($"PDF generated successfully at {outputPath}");
+```
+
+##### Using the Lower-Level Components
+
+Alternatively, you can use the lower-level components directly for more control:
 
 ```csharp
 using InvoiceGenerator.Core.Services;
