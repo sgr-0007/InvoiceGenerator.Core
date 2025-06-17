@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Razor.Templating.Core;
 
-namespace PdfReporting.Core.Services
+namespace InvoiceGenerator.Core.Services
 {
     public class RazorViewToStringRenderer : IRazorViewToStringRenderer
     {

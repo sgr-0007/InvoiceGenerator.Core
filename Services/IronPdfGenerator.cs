@@ -1,6 +1,6 @@
 using IronPdf;
 
-namespace PdfReporting.Core.Services
+namespace InvoiceGenerator.Core.Services
 {
     public class IronPdfGenerator : IPdfGenerator
     {

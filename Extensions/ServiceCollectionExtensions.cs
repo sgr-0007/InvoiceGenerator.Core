@@ -3,13 +3,13 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using IronPdf;
-using PdfReporting.Core.Services;
+using InvoiceGenerator.Core.Services;
 
-namespace PdfReporting.Core.Extensions
+namespace InvoiceGenerator.Core.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPdfReporting(this IServiceCollection services)
+        public static IServiceCollection AddInvoiceGenerator(this IServiceCollection services)
         {
             // 1) Build a Configuration that reads:
             //    - appsettings.json next to the DLL

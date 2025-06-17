@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace PdfReporting.Core.Contracts
+namespace InvoiceGenerator.Core.Contracts
 {
     public class Invoice
     {

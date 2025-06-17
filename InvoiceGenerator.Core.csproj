@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
 
@@ -9,8 +9,8 @@
 
     <!-- Package metadata -->
     <Authors>SagarHS</Authors>
-    <PackageId>PdfReporting.Core</PackageId>
-    <Version>1.1.0</Version>
+    <PackageId>InvoiceGenerator.Core</PackageId>
+    <Version>1.2.0</Version>
     <Description>Generate PDFs from Razor views in ASP.NET Core.</Description>
     <PackageTags>pdf;razor;reporting</PackageTags>
 

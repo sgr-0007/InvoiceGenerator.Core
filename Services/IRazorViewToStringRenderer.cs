@@ -1,7 +1,7 @@
 
 using System.Threading.Tasks;
 
-namespace PdfReporting.Core.Services
+namespace InvoiceGenerator.Core.Services
 {
     public interface IRazorViewToStringRenderer
     {

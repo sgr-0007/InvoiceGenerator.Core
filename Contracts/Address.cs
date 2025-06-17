@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PdfReporting.Core.Contracts
+namespace InvoiceGenerator.Core.Contracts
 {
     public class Address
     {
