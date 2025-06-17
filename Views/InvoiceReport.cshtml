@@ -12,7 +12,12 @@
 <div class="min-w-7xl flex flex-col bg-gray-200 space-y-4 p-10">
     <h1 class="text-2xl font-semibold">Invoice #@Model.Number</h1>
     <p>Issued date: @Model.IssuedDate</p>
-    <p>Due date:   @Model.DueDate</p>
+        <p>Due date:   @Model.DueDate</p>
+
+    @foreach (var field in Model.CustomFields)
+    {
+        <p><span class="font-medium">@field.Key:</span> @field.Value</p>
+    }
 
     <div class="flex justify-between space-x-4">
         <div class="bg-gray-100 rounded-lg p-4 w-1/2">

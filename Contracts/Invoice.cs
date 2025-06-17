@@ -13,6 +13,9 @@ namespace InvoiceGenerator.Core.Contracts
         public required Address SellerAddress   { get; set; }
         public required Address CustomerAddress { get; set; }
 
-        public List<LineItem> LineItems { get; set; } = new List<LineItem>();
+        public required List<LineItem> LineItems { get; set; } = new();
+
+        // A dictionary for any custom fields the user wants to add
+        public Dictionary<string, string> CustomFields { get; set; } = new();
     }
 }
