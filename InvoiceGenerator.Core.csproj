@@ -27,6 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Views\InvoiceReport.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Options\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- README at the root of the nupkg -->
     <None Include="README.md">
       <Pack>true</Pack>

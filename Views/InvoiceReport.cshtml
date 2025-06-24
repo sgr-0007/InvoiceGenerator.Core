@@ -2,9 +2,21 @@
 @model InvoiceGenerator.Core.Contracts.Invoice
 
 @{
-    IFormatProvider cultureInfo = CultureInfo.CreateSpecificCulture("en-US");
-    var subtotal = Model.LineItems.Sum(li => li.Price * li.Quantity).ToString("C", cultureInfo);
-    var total    = Model.LineItems.Sum(li => li.Price * li.Quantity).ToString("C", cultureInfo);
+    // Create a culture info based on the invoice's currency code or default to en-US
+    string cultureName = "en-US";
+    switch (Model.CurrencyCode?.ToUpper() ?? "USD")
+    {
+        case "EUR": cultureName = "fr-FR"; break; // Euro
+        case "GBP": cultureName = "en-GB"; break; // British Pound
+        case "JPY": cultureName = "ja-JP"; break; // Japanese Yen
+        case "CAD": cultureName = "en-CA"; break; // Canadian Dollar
+        default: cultureName = "en-US"; break;    // US Dollar
+    }
+    
+    IFormatProvider cultureInfo = CultureInfo.CreateSpecificCulture(cultureName);
+    var formatSubtotal = Model.Subtotal.ToString("C", cultureInfo);
+    var formatTax = Model.TaxAmount.ToString("C", cultureInfo);
+    var formatTotal = Model.Total.ToString("C", cultureInfo);
 }
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -54,10 +66,27 @@
 
     <div class="flex justify-end space-x-8">
         <div>Subtotal:</div>
-        <div>@subtotal</div>
+        <div>@formatSubtotal</div>
     </div>
+    
+    @if (Model.TaxRate > 0)
+    {
+        <div class="flex justify-end space-x-8">
+            <div>Tax (@Model.TaxRate.ToString("0.##")%):</div>
+            <div>@formatTax</div>
+        </div>
+    }
+    
     <div class="flex justify-end space-x-8 font-semibold">
         <div>Total:</div>
-        <div>@total</div>
+        <div>@formatTotal</div>
     </div>
+    
+    @if (!string.IsNullOrEmpty(Model.Notes))
+    {
+        <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+            <h3 class="font-medium">Notes:</h3>
+            <p>@Model.Notes</p>
+        </div>
+    }
 </div>
