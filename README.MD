@@ -3,6 +3,8 @@
 [![NuGet version](https://img.shields.io/nuget/v/InvoiceGenerator.Core.svg?color=blue&label=NuGet)](https://www.nuget.org/packages/InvoiceGenerator.Core)
 [![NuGet downloads](https://img.shields.io/nuget/dt/InvoiceGenerator.Core.svg?label=Downloads)](https://www.nuget.org/packages/InvoiceGenerator.Core)
 
+**Version 2.0.1**
+
 
 A .NET 8 library for generating Invoice PDF reports from Razor templates using IronPdf. This library is designed to be easy to use, providing a simple API for generating complex PDF documents with text, tables, and more.
 
@@ -14,6 +16,8 @@ A .NET 8 library for generating Invoice PDF reports from Razor templates using I
 - Model-based report generation (strongly typed views)
 - Support for custom fields in invoices via a flexible dictionary, allowing for easy addition of custom data to invoices
 - Cross-platform support (Windows, macOS, Linux)
+- Simple, consolidated API with a single entry point for configuration
+- Customizable PDF options including page size, orientation, and margins
 
 ## Getting Started
 
@@ -122,7 +126,25 @@ using Microsoft.Extensions.DependencyInjection;
 using InvoiceGenerator.Core.Extensions;
 
 var services = new ServiceCollection()
-    .AddInvoiceGenerator() // Registers IRazorViewToStringRenderer & IPdfGenerator
+    // Basic registration with default options
+    .AddInvoiceGenerator()
+    .BuildServiceProvider();
+    
+// Or with custom options
+var services = new ServiceCollection()
+    .AddInvoiceGenerator(options => {
+        // Configure PDF options using string constants
+        options.DefaultPageSize = InvoiceGeneratorOptions.PageSizes.A4;
+        options.DefaultOrientation = InvoiceGeneratorOptions.Orientations.Portrait;
+        options.DefaultMarginMm = 15;
+        options.DefaultDocumentTitle = "Invoice Generator";
+        
+        // Optional: Set a custom template path
+        // options.CustomTemplatePath = "CustomInvoiceTemplate";
+        
+        // Optional: Provide an IronPdf license key
+        // options.IronPdfLicenseKey = "YOUR-LICENSE-KEY";
+    })
     .BuildServiceProvider();
 ```
 
@@ -212,6 +234,15 @@ await File.WriteAllBytesAsync(outputPath, pdfBytes);
 
 Console.WriteLine($"PDF generated successfully at {outputPath}");
 ```
+
+## Project Structure
+
+The InvoiceGenerator.Core library is designed with simplicity in mind, using a consolidated approach for configuration and service registration:
+
+- **ServiceCollectionExtensions.cs**: Contains the main extension methods for registering services and the `InvoiceGeneratorOptions` class with all configuration options
+- **Contracts/**: Contains the data models like `Invoice`, `Address`, and `LineItem`
+- **Services/**: Contains the service implementations for invoice generation and PDF creation
+- **Views/**: Contains the Razor templates used for rendering invoices
 
 ## Contributing
 
