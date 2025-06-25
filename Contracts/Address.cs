@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 
 namespace InvoiceGenerator.Core.Contracts
@@ -46,12 +43,12 @@ namespace InvoiceGenerator.Core.Contracts
         /// <summary>
         /// Gets or sets the postal code/zip code
         /// </summary>
-        public string? PostalCode { get; set; }
+        public string PostalCode { get; set; } = string.Empty;
         
         /// <summary>
         /// Gets or sets the phone number
         /// </summary>
         [Phone(ErrorMessage = "Invalid phone number format")]
-        public string? Phone { get; set; }
+        public string Phone { get; set; } = string.Empty;
     }
 }

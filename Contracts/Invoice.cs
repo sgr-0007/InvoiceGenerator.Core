@@ -78,7 +78,7 @@ namespace InvoiceGenerator.Core.Contracts
         /// <summary>
         /// Gets or sets any notes to be displayed on the invoice
         /// </summary>
-        public string? Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the currency code (e.g., USD, EUR)

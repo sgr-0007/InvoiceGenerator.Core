@@ -141,7 +141,7 @@ namespace InvoiceGenerator.Core.Extensions
         /// <summary>
         /// Gets or sets the IronPdf license key
         /// </summary>
-        public string? IronPdfLicenseKey { get; set; }
+        public string IronPdfLicenseKey { get; set; } = string.Empty;
         
         /// <summary>
         /// Gets or sets whether to use appsettings.json for configuration
@@ -156,12 +156,12 @@ namespace InvoiceGenerator.Core.Extensions
         /// <summary>
         /// Gets or sets the base path for configuration files
         /// </summary>
-        public string? ConfigurationBasePath { get; set; }
+        public string ConfigurationBasePath { get; set; } = string.Empty;
         
         /// <summary>
         /// Gets or sets the custom template path for invoice generation
         /// </summary>
-        public string? CustomTemplatePath { get; set; }
+        public string CustomTemplatePath { get; set; } = string.Empty;
         
         /// <summary>
         /// Gets or sets the default page size for generated PDFs
@@ -181,6 +181,6 @@ namespace InvoiceGenerator.Core.Extensions
         /// <summary>
         /// Gets or sets the default document title for generated PDFs
         /// </summary>
-        public string? DefaultDocumentTitle { get; set; }
+        public string DefaultDocumentTitle { get; set; } = string.Empty;
     }
 }
