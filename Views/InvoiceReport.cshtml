@@ -1,10 +1,16 @@
 @using System.Globalization
-@model InvoiceGenerator.Core.Contracts.Invoice
+@using InvoiceGenerator.Core.ML.Models
+
+@model dynamic
 
 @{
+    // Extract invoice and layout from the dynamic model
+    var invoice = Model.Invoice;
+    var layout = Model.Layout as InvoiceLayoutOptions ?? new InvoiceLayoutOptions();
+    
     // Create a culture info based on the invoice's currency code or default to en-US
     string cultureName = "en-US";
-    switch (Model.CurrencyCode?.ToUpper() ?? "USD")
+    switch (invoice.CurrencyCode?.ToUpper() ?? "USD")
     {
         case "EUR": cultureName = "fr-FR"; break; // Euro
         case "GBP": cultureName = "en-GB"; break; // British Pound
@@ -14,19 +20,19 @@
     }
     
     IFormatProvider cultureInfo = CultureInfo.CreateSpecificCulture(cultureName);
-    var formatSubtotal = Model.Subtotal.ToString("C", cultureInfo);
-    var formatTax = Model.TaxAmount.ToString("C", cultureInfo);
-    var formatTotal = Model.Total.ToString("C", cultureInfo);
+    var formatSubtotal = invoice.Subtotal.ToString("C", cultureInfo);
+    var formatTax = invoice.TaxAmount.ToString("C", cultureInfo);
+    var formatTotal = invoice.Total.ToString("C", cultureInfo);
 }
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <div class="min-w-7xl flex flex-col bg-gray-200 space-y-4 p-10">
-    <h1 class="text-2xl font-semibold">Invoice #@Model.Number</h1>
-    <p>Issued date: @Model.IssuedDate</p>
-        <p>Due date:   @Model.DueDate</p>
+    <h1 class="text-2xl font-semibold">Invoice #@invoice.Number</h1>
+    <p>Issued date: @invoice.IssuedDate</p>
+        <p>Due date:   @invoice.DueDate</p>
 
-    @foreach (var field in Model.CustomFields)
+    @foreach (var field in invoice.CustomFields)
     {
         <p><span class="font-medium">@field.Key:</span> @field.Value</p>
     }
@@ -34,17 +40,17 @@
     <div class="flex justify-between space-x-4">
         <div class="bg-gray-100 rounded-lg p-4 w-1/2">
             <p class="font-medium">Seller:</p>
-            <p>@Model.SellerAddress.CompanyName</p>
-            <p>@Model.SellerAddress.Street</p>
-            <p>@Model.SellerAddress.City, @Model.SellerAddress.State</p>
-            <p>@Model.SellerAddress.Email</p>
+            <p>@invoice.SellerAddress.CompanyName</p>
+            <p>@invoice.SellerAddress.Street</p>
+            <p>@invoice.SellerAddress.City, @invoice.SellerAddress.State</p>
+            <p>@invoice.SellerAddress.Email</p>
         </div>
         <div class="bg-gray-100 rounded-lg p-4 w-1/2">
             <p class="font-medium">Bill to:</p>
-            <p>@Model.CustomerAddress.CompanyName</p>
-            <p>@Model.CustomerAddress.Street</p>
-            <p>@Model.CustomerAddress.City, @Model.CustomerAddress.State</p>
-            <p>@Model.CustomerAddress.Email</p>
+            <p>@invoice.CustomerAddress.CompanyName</p>
+            <p>@invoice.CustomerAddress.Street</p>
+            <p>@invoice.CustomerAddress.City, @invoice.CustomerAddress.State</p>
+            <p>@invoice.CustomerAddress.Email</p>
         </div>
     </div>
 
@@ -53,13 +59,15 @@
         <div class="grid grid-cols-4 font-medium border-b pb-2">
             <div>#</div><div>Name</div><div>Price</div><div>Qty</div>
         </div>
-        @foreach (var (item, i) in Model.LineItems.Select((li, idx) => (li, idx+1)))
+        @{ int index = 1; }
+        @foreach (var item in invoice.LineItems)
         {
             <div class="grid grid-cols-4 py-1">
-                <div>@i</div>
+                <div>@index</div>
                 <div>@item.Name</div>
                 <div>@item.Price.ToString("C", cultureInfo)</div>
                 <div>@item.Quantity</div>
+                @{ index++; }
             </div>
         }
     </div>
@@ -69,10 +77,10 @@
         <div>@formatSubtotal</div>
     </div>
     
-    @if (Model.TaxRate > 0)
+    @if (invoice.TaxRate > 0)
     {
         <div class="flex justify-end space-x-8">
-            <div>Tax (@Model.TaxRate.ToString("0.##")%):</div>
+            <div>Tax (@invoice.TaxRate.ToString("0.##")%):</div>
             <div>@formatTax</div>
         </div>
     }
@@ -82,11 +90,11 @@
         <div>@formatTotal</div>
     </div>
     
-    @if (!string.IsNullOrEmpty(Model.Notes))
+    @if (!string.IsNullOrEmpty(invoice.Notes))
     {
         <div class="mt-6 p-4 bg-gray-100 rounded-lg">
             <h3 class="font-medium">Notes:</h3>
-            <p>@Model.Notes</p>
+            <p>@invoice.Notes</p>
         </div>
     }
 </div>

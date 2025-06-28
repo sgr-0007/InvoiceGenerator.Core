@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using IronPdf;
 using InvoiceGenerator.Core.Services;
-
+using InvoiceGenerator.Core.ML.Services;
 
 namespace InvoiceGenerator.Core.Extensions
 {
@@ -41,14 +41,18 @@ namespace InvoiceGenerator.Core.Extensions
             configureOptions(options);
             
             // Build configuration
+            string basePath = string.IsNullOrWhiteSpace(options.ConfigurationBasePath) 
+                ? AppContext.BaseDirectory 
+                : options.ConfigurationBasePath;
+                
             var configBuilder = new ConfigurationBuilder()
-                .SetBasePath(options.ConfigurationBasePath ?? AppContext.BaseDirectory)
+                .SetBasePath(basePath)
                 .AddEnvironmentVariables();
                 
             // Add appsettings.json if it exists and is enabled
             if (options.UseAppSettings)
             {
-                string settingsPath = Path.Combine(options.ConfigurationBasePath ?? AppContext.BaseDirectory, "appsettings.json");
+                string settingsPath = Path.Combine(basePath, "appsettings.json");
                 if (File.Exists(settingsPath))
                 {
                     configBuilder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: options.ReloadConfigOnChange);
@@ -85,20 +89,42 @@ namespace InvoiceGenerator.Core.Extensions
                 return generator;
             });
             
+            // Register ML-based layout optimizer if enabled
+            if (options.UseSmartLayout)
+            {
+                services.AddSingleton<IInvoiceLayoutOptimizer>(serviceProvider =>
+                {
+                    var logger = serviceProvider.GetService<ILogger<InvoiceLayoutOptimizer>>();
+                    var optimizer = new InvoiceLayoutOptimizer(logger);
+                    
+                    // Load pre-trained model if specified
+                    if (!string.IsNullOrEmpty(options.ModelPath) && File.Exists(options.ModelPath))
+                    {
+                        optimizer.LoadModel(options.ModelPath);
+                    }
+                    
+                    return optimizer;
+                });
+            }
+            
             // Register invoice generator with configuration
             services.AddSingleton<IInvoiceGenerator>(serviceProvider =>
             {
                 var razorRenderer = serviceProvider.GetRequiredService<IRazorViewToStringRenderer>();
                 var pdfGenerator = serviceProvider.GetRequiredService<IPdfGenerator>();
+                var layoutOptimizer = options.UseSmartLayout ? serviceProvider.GetService<IInvoiceLayoutOptimizer>() : null;
                 var logger = serviceProvider.GetService<ILogger<InvoicePdfGenerator>>();
                 
-                var invoiceGenerator = new InvoicePdfGenerator(razorRenderer, pdfGenerator, logger);
+                var invoiceGenerator = new InvoicePdfGenerator(razorRenderer, pdfGenerator, layoutOptimizer, logger);
                 
                 // Set custom template path if provided
                 if (!string.IsNullOrEmpty(options.CustomTemplatePath))
                 {
                     invoiceGenerator.TemplatePath = options.CustomTemplatePath;
                 }
+                
+                // Configure smart layout usage
+                invoiceGenerator.UseSmartLayout = options.UseSmartLayout;
                 
                 return invoiceGenerator;
             });
@@ -182,5 +208,15 @@ namespace InvoiceGenerator.Core.Extensions
         /// Gets or sets the default document title for generated PDFs
         /// </summary>
         public string DefaultDocumentTitle { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets whether to use ML-based smart layout optimization
+        /// </summary>
+        public bool UseSmartLayout { get; set; } = true;
+        
+        /// <summary>
+        /// Gets or sets the path to a pre-trained ML model for layout optimization
+        /// </summary>
+        public string ModelPath { get; set; } = string.Empty;
     }
 }

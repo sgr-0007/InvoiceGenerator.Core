@@ -1,0 +1,227 @@
+@using System.Globalization
+@using InvoiceGenerator.Core.ML.Models
+
+@model dynamic
+
+@{
+    // Extract invoice and layout from the combined model
+    var invoice = Model.Invoice;
+    var layout = Model.Layout as InvoiceLayoutOptions ?? new InvoiceLayoutOptions();
+    
+    // Create a culture info based on the invoice's currency code or default to en-US
+    string cultureName = "en-US";
+    switch (invoice.CurrencyCode?.ToUpper() ?? "USD")
+    {
+        case "EUR": cultureName = "fr-FR"; break; // Euro
+        case "GBP": cultureName = "en-GB"; break; // British Pound
+        case "JPY": cultureName = "ja-JP"; break; // Japanese Yen
+        case "CAD": cultureName = "en-CA"; break; // Canadian Dollar
+        default: cultureName = "en-US"; break;    // US Dollar
+    }
+    
+    IFormatProvider cultureInfo = CultureInfo.CreateSpecificCulture(cultureName);
+    var formatSubtotal = invoice.Subtotal.ToString("C", cultureInfo);
+    var formatTax = invoice.TaxAmount.ToString("C", cultureInfo);
+    var formatTotal = invoice.Total.ToString("C", cultureInfo);
+    
+    // Apply ML-optimized layout settings
+    var fontSize = layout.FontSize;
+    var sectionSpacing = layout.SectionSpacing;
+    var totalEmphasis = layout.TotalEmphasis;
+}
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        font-size: @(fontSize)px;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: @(sectionSpacing)rem;
+    }
+    .invoice-info {
+        margin-bottom: @(sectionSpacing)rem;
+    }
+    .addresses {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: @(sectionSpacing)rem;
+        font-size: @(fontSize - 1)px;
+    }
+    .address-box {
+        width: 48%;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: @(sectionSpacing)rem;
+        font-size: @(fontSize - 2)px;
+    }
+    .items-table th, .items-table td {
+        padding: 4px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .items-table th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+    }
+    .totals {
+        margin-left: auto;
+        width: 40%;
+        margin-bottom: @(sectionSpacing)rem;
+    }
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    .grand-total {
+        font-weight: bold;
+        font-size: @(fontSize + (totalEmphasis * 4))px;
+        color: #000;
+        border-top: 2px solid #000;
+        padding-top: 5px;
+    }
+    .notes {
+        margin-top: @(sectionSpacing)rem;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        font-size: @(fontSize - 1)px;
+    }
+    .custom-fields {
+        margin-bottom: @(sectionSpacing)rem;
+        font-size: @(fontSize - 1)px;
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <h1 style="margin: 0; font-size: @(fontSize + 4)px;">INVOICE</h1>
+        <div style="text-align: right;">
+            <div style="font-weight: bold; font-size: @(fontSize + 2)px;">#@invoice.Number</div>
+            <div>Issued: @invoice.IssuedDate.ToString("yyyy-MM-dd")</div>
+            <div>Due: @invoice.DueDate.ToString("yyyy-MM-dd")</div>
+        </div>
+    </div>
+    
+    @if (invoice.CustomFields.Count > 0)
+    {
+        <div class="custom-fields">
+            <table style="width: 100%;">
+                @foreach (var field in invoice.CustomFields)
+                {
+                    <tr>
+                        <td style="width: 30%; font-weight: bold;">@field.Key:</td>
+                        <td>@field.Value</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    }
+    
+    <div class="addresses">
+        <div class="address-box">
+            <div style="font-weight: bold; margin-bottom: 5px;">From:</div>
+            <div>@invoice.SellerAddress.CompanyName</div>
+            <div>@invoice.SellerAddress.Street</div>
+            <div>@invoice.SellerAddress.City, @invoice.SellerAddress.State @invoice.SellerAddress.ZipCode</div>
+            <div>@invoice.SellerAddress.Country</div>
+            @if (!string.IsNullOrEmpty(invoice.SellerAddress.Email))
+            {
+                <div>@invoice.SellerAddress.Email</div>
+            }
+            @if (!string.IsNullOrEmpty(invoice.SellerAddress.Phone))
+            {
+                <div>@invoice.SellerAddress.Phone</div>
+            }
+        </div>
+        
+        <div class="address-box">
+            <div style="font-weight: bold; margin-bottom: 5px;">To:</div>
+            @if (!string.IsNullOrEmpty(invoice.CustomerAddress.CompanyName))
+            {
+                <div>@invoice.CustomerAddress.CompanyName</div>
+            }
+            <div>@invoice.CustomerAddress.Street</div>
+            <div>@invoice.CustomerAddress.City, @invoice.CustomerAddress.State @invoice.CustomerAddress.ZipCode</div>
+            <div>@invoice.CustomerAddress.Country</div>
+            @if (!string.IsNullOrEmpty(invoice.CustomerAddress.Email))
+            {
+                <div>@invoice.CustomerAddress.Email</div>
+            }
+            @if (!string.IsNullOrEmpty(invoice.CustomerAddress.Phone))
+            {
+                <div>@invoice.CustomerAddress.Phone</div>
+            }
+        </div>
+    </div>
+    
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 50%;">Description</th>
+                <th style="width: 15%;">Qty</th>
+                <th style="width: 15%;">Unit Price</th>
+                <th style="width: 15%;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{int index = 1; }
+            @foreach (var item in invoice.LineItems)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("C", cultureInfo)</td>
+                    <td>@((item.Price * item.Quantity).ToString("C", cultureInfo))</td>
+                    @{ index++; }
+                </tr>
+            }
+        </tbody>
+    </table>
+    
+    <div class="totals">
+        <div class="total-row">
+            <div>Subtotal:</div>
+            <div>@formatSubtotal</div>
+        </div>
+        
+        @if (invoice.TaxRate > 0)
+        {
+            <div class="total-row">
+                <div>Tax (@invoice.TaxRate.ToString("0.##")%):</div>
+                <div>@formatTax</div>
+            </div>
+        }
+        
+        <div class="total-row grand-total">
+            <div>Total:</div>
+            <div>@formatTotal</div>
+        </div>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(invoice.Notes))
+    {
+        <div class="notes">
+            <div style="font-weight: bold; margin-bottom: 5px;">Notes:</div>
+            <div>@invoice.Notes.Replace("\n", "<br />").Replace("\r", "")</div>
+        </div>
+    }
+</div>

@@ -3,8 +3,15 @@
 [![NuGet version](https://img.shields.io/nuget/v/InvoiceGenerator.Core.svg?color=blue&label=NuGet)](https://www.nuget.org/packages/InvoiceGenerator.Core)
 [![NuGet downloads](https://img.shields.io/nuget/dt/InvoiceGenerator.Core.svg?label=Downloads)](https://www.nuget.org/packages/InvoiceGenerator.Core)
 
-**Version 2.0.4**
+**Version 2.1.0**
 
+### What's New in 2.1.0
+
+- **ML-Based Layout Optimization**: Automatically select the best invoice template based on invoice characteristics
+- **Dynamic Template Selection**: Intelligently choose between Standard, Premium, Compact, or Custom templates
+- **Smart Layout Options**: ML predictions for font size, spacing, and emphasis based on invoice content
+- **Training Pipeline**: Built-in ML.NET training pipeline with synthetic data generation
+- **Extensible Design**: Easy to customize with your own templates and training data
 
 A .NET 8 library for generating Invoice PDF reports from Razor templates using IronPdf. This library is designed to be easy to use, providing a simple API for generating complex PDF documents with text, tables, and more.
 
