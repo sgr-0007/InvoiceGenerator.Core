@@ -43,13 +43,13 @@ namespace InvoiceGenerator.Core.ML.Services
                 // Make prediction
                 var prediction = predictionEngine.Predict(inputData);
                 
-                _logger?.LogInformation($"Generated layout prediction for invoice {invoice.Number} with confidence {prediction.ScoreValue:P2}");
+                _logger?.LogInformation("Generated layout prediction for invoice {InvoiceNumber} with confidence {Confidence:P2}", invoice.Number, prediction.ScoreValue);
                 
                 return prediction;
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"Error predicting layout for invoice {invoice.Number}");
+                _logger?.LogError(ex, "Error predicting layout for invoice {InvoiceNumber}", invoice.Number);
                 return GetDefaultPrediction();
             }
         }
@@ -59,7 +59,7 @@ namespace InvoiceGenerator.Core.ML.Services
         {
             if (!File.Exists(trainingDataPath))
             {
-                _logger?.LogError($"Training data file not found: {trainingDataPath}");
+                _logger?.LogError("Training data file not found: {TrainingDataPath}", trainingDataPath);
                 return false;
             }
             
@@ -130,13 +130,13 @@ namespace InvoiceGenerator.Core.ML.Services
                 // Save model
                 _mlContext.Model.Save(_trainedModel, null, modelPath);
                 
-                _logger?.LogInformation($"Model saved to {modelPath}");
+                _logger?.LogInformation("Model saved to {ModelPath}", modelPath);
                 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"Error saving model to {modelPath}");
+                _logger?.LogError(ex, "Error saving model to {ModelPath}", modelPath);
                 return false;
             }
         }
@@ -146,7 +146,7 @@ namespace InvoiceGenerator.Core.ML.Services
         {
             if (!File.Exists(modelPath))
             {
-                _logger?.LogError($"Model file not found: {modelPath}");
+                _logger?.LogError("Model file not found: {ModelPath}", modelPath);
                 return false;
             }
             
@@ -155,13 +155,13 @@ namespace InvoiceGenerator.Core.ML.Services
                 // Load model
                 _trainedModel = _mlContext.Model.Load(modelPath, out _);
                 
-                _logger?.LogInformation($"Model loaded from {modelPath}");
+                _logger?.LogInformation("Model loaded from {ModelPath}", modelPath);
                 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"Error loading model from {modelPath}");
+                _logger?.LogError(ex, "Error loading model from {ModelPath}", modelPath);
                 return false;
             }
         }

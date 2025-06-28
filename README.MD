@@ -52,7 +52,7 @@ Install-Package InvoiceGenerator.Core
 
 The primary way to use this library is by leveraging dependency injection.
 
-### Complete Example
+### Standard Usage
 
 Here's a complete example of how to use the library to generate an invoice PDF:
 
@@ -126,7 +126,7 @@ try {
 
 #### 1. Service Registration
 
-Register the required services in your `Program.cs` or startup class:
+Register the required services in your `Program.cs`:
 
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
@@ -240,6 +240,83 @@ var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "MyInvoice.pdf");
 await File.WriteAllBytesAsync(outputPath, pdfBytes);
 
 Console.WriteLine($"PDF generated successfully at {outputPath}");
+```
+
+## ML-Based Smart Layout
+
+The library includes ML-based invoice layout optimization features that automatically select the best template and layout options based on invoice characteristics.
+
+### 1. Enable ML Features
+
+Enable ML features during service registration:
+
+```csharp
+services.AddInvoiceGenerator(options => {
+    options.UseSmartLayout = true; // Enable ML-based layout optimization
+    options.ConfigurationBasePath = Directory.GetCurrentDirectory();
+    
+    // Optional: Specify paths to custom ML model and training data
+    // options.MlModelPath = "path/to/model.zip";
+    // options.TrainingDataPath = "path/to/training_data.csv";
+});
+```
+
+### 2. Generate Invoices with Smart Layout
+
+Once ML features are enabled, the invoice generator will automatically:
+1. Analyze invoice characteristics (line items count, total amount, etc.)
+2. Select the optimal template (Standard, Premium, Compact, or Custom)
+3. Adjust layout parameters (font size, spacing, emphasis)
+
+#### How Layout Selection Works
+
+The ML system selects layouts based on these invoice characteristics:
+
+- **Line Item Count**: Invoices with many line items (>20) typically use the Compact template for better space utilization
+- **Total Amount**: High-value invoices (>$1000) often use the Premium template with enhanced styling
+- **Custom Fields**: Invoices with many custom fields may use templates with dedicated sections
+- **Content Length**: Text-heavy invoices use layouts with optimized spacing
+
+The multiclass classification model outputs confidence scores for each template type, and the system selects the template with the highest score. Layout parameters are then fine-tuned based on the specific invoice characteristics:
+
+- **Font Size**: Adjusted based on content density
+- **Section Spacing**: Optimized for readability
+- **Total Amount Emphasis**: Enhanced for high-value invoices
+- **Layout Template**: Selected from Standard, Premium, Compact, or Custom
+
+```csharp
+// Create different types of invoices
+var standardInvoice = new Invoice { /* few line items */ };
+var compactInvoice = new Invoice { /* many line items */ };
+var premiumInvoice = new Invoice { /* high value */ };
+
+// The library automatically selects the best template for each invoice
+byte[] pdfBytes = await invoiceGenerator.GenerateAsync(invoice);
+```
+
+### 3. Training Custom ML Models
+
+You can train custom ML models with your own data:
+
+```csharp
+// Get the ML optimizer service
+var layoutOptimizer = services.GetRequiredService<IInvoiceLayoutOptimizer>();
+
+// Generate synthetic training data (or use your own)
+var trainingDataPath = "path/to/training_data.csv";
+var trainingGenerator = new TrainingDataGenerator();
+trainingGenerator.GenerateTrainingData(trainingDataPath, 500);
+
+// Train the model
+var modelPath = "path/to/save/model.zip";
+if (layoutOptimizer.TrainModel(trainingDataPath))
+{
+    // Save the trained model
+    layoutOptimizer.SaveModel(modelPath);
+}
+
+// Load a previously trained model
+layoutOptimizer.LoadModel(modelPath);
 ```
 
 ## Project Structure
