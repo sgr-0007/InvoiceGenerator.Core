@@ -10,7 +10,7 @@
     <!-- Package metadata -->
     <Authors>SagarHS</Authors>
     <PackageId>InvoiceGenerator.Core</PackageId>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <Description>Generate PDFs from Razor views in ASP.NET Core.</Description>
     <PackageTags>pdf;razor;reporting</PackageTags>
 
