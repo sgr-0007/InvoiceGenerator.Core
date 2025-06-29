@@ -37,8 +37,10 @@ A .NET 8 library for generating Invoice PDF reports from Razor templates using I
 Clone the repository and build the solution:
 
 ```sh
-git clone <your-repository-url> # Replace with your repo URL
-cd <repository-folder>
+git clone https://github.com/sgr-0007/InvoiceGenerator.Core.git 
+cd InvoiceGenerator.Core
+dotnet restore
+dotnet clean
 dotnet build
 ```
 
