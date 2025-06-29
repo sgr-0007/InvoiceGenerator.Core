@@ -3,9 +3,9 @@
 [![NuGet version](https://img.shields.io/nuget/v/InvoiceGenerator.Core.svg?color=blue&label=NuGet)](https://www.nuget.org/packages/InvoiceGenerator.Core)
 [![NuGet downloads](https://img.shields.io/nuget/dt/InvoiceGenerator.Core.svg?label=Downloads)](https://www.nuget.org/packages/InvoiceGenerator.Core)
 
-**Version 2.1.2**
+**Version 2.1.3**
 
-### What's New in 2.1.2
+### What's New in 2.1.0
 
 - **ML-Based Layout Optimization**: Automatically select the best invoice template based on invoice characteristics
 - **Dynamic Template Selection**: Intelligently choose between Standard, Premium, Compact, or Custom templates
